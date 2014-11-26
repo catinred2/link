@@ -11,26 +11,29 @@ import (
 type PNProtocol struct {
 	n  int
 	bo binary.ByteOrder
+	id int
 }
 
 // Create a {packet, N} protocol.
 // The n means how many bytes of the packet header.
 // The 'bo' used to define packet header's byte order.
-func PacketN(n int, bo binary.ByteOrder) *PNProtocol {
+//
+func PacketN(n int, bo binary.ByteOrder, id int) *PNProtocol {
 	return &PNProtocol{
-		n:  n,
+		n:  8,
 		bo: bo,
+		id: id,
 	}
 }
 
 // Create a packet writer.
 func (p PNProtocol) NewWriter() PacketWriter {
-	return NewPNWriter(p.n, p.bo)
+	return NewPNWriter(p.n, p.bo, p.id)
 }
 
 // Create a packet reader.
 func (p PNProtocol) NewReader() PacketReader {
-	return NewPNReader(p.n, p.bo)
+	return NewPNReader(p.n, p.bo, p.id)
 }
 
 // The {packet, N} writer.
@@ -38,15 +41,17 @@ type PNWriter struct {
 	SimpleSettings
 	n  int
 	bo binary.ByteOrder
+	id int
 }
 
 // Create a new instance of {packet, N} writer.
 // The n means how many bytes of the packet header.
 // The 'bo' used to define packet header's byte order.
-func NewPNWriter(n int, bo binary.ByteOrder) *PNWriter {
+func NewPNWriter(n int, bo binary.ByteOrder, id int) *PNWriter {
 	return &PNWriter{
 		n:  n,
 		bo: bo,
+		id: id,
 	}
 }
 
@@ -68,14 +73,9 @@ func (w *PNWriter) EndPacket(buffer OutBuffer) {
 	}
 
 	switch w.n {
-	case 1:
-		buffer.Get()[0] = byte(size)
-	case 2:
-		w.bo.PutUint16(buffer.Get(), uint16(size))
-	case 4:
-		w.bo.PutUint32(buffer.Get(), uint32(size))
 	case 8:
-		w.bo.PutUint64(buffer.Get(), uint64(size))
+		w.bo.PutUint32(buffer.Get(), uint32(w.id))
+		w.bo.PutUint32(buffer.Get()[4:], uint32(size))
 	default:
 		panic("unsupported packet head size")
 	}
@@ -94,16 +94,18 @@ type PNReader struct {
 	SimpleSettings
 	n    int
 	bo   binary.ByteOrder
+	id   int
 	head []byte
 }
 
 // Create a new instance of {packet, N} reader.
 // The n means how many bytes of the packet header.
 // The 'bo' used to define packet header's byte order.
-func NewPNReader(n int, bo binary.ByteOrder) *PNReader {
+func NewPNReader(n int, bo binary.ByteOrder, id int) *PNReader {
 	return &PNReader{
 		n:    n,
 		bo:   bo,
+		id:   id,
 		head: make([]byte, n),
 	}
 }
@@ -117,14 +119,14 @@ func (r *PNReader) ReadPacket(conn net.Conn, buffer InBuffer) error {
 	size := 0
 
 	switch r.n {
-	case 1:
-		size = int(r.head[0])
-	case 2:
-		size = int(r.bo.Uint16(r.head))
-	case 4:
-		size = int(r.bo.Uint32(r.head))
+	//case 1:
+	//	size = int(r.head[0])
+	//case 2:
+	//	size = int(r.bo.Uint16(r.head))
+	//case 4:
+	//	size = int(r.bo.Uint32(r.head))
 	case 8:
-		size = int(r.bo.Uint64(r.head))
+		size = int(r.bo.Uint32(r.head[4:]))
 	default:
 		panic("unsupported packet head size")
 	}

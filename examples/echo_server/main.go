@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"flag"
 	"fmt"
-	"github.com/funny/link"
+	"github.com/catinred2/link"
 )
 
 var (
@@ -26,7 +26,7 @@ func main() {
 
 	link.DefaultConnBufferSize = *buffersize
 
-	protocol := link.PacketN(2, binary.BigEndian)
+	protocol := link.PacketN(2, binary.BigEndian, 123)
 
 	server, err := link.Listen("tcp", "127.0.0.1:10010", protocol, link.LittleEndian)
 	if err != nil {
