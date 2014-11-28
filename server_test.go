@@ -2,7 +2,7 @@ package link
 
 import (
 	"bytes"
-	"encoding/binary"
+	"github.com/funny/unitest"
 	"runtime/pprof"
 	"sync"
 	"sync/atomic"
@@ -10,12 +10,10 @@ import (
 )
 
 func Test_Server(t *testing.T) {
-	proto := PacketN(4, binary.BigEndian)
+	proto := PacketN(4, BigEndianBO, LittleEndianBF)
 
-	server, err0 := Listen("tcp", "0.0.0.0:0", proto, LittleEndian)
-	if err0 != nil {
-		t.Fatalf("Setup server failed, Error = %v", err0)
-	}
+	server, err0 := Listen("tcp", "0.0.0.0:0", proto)
+	unitest.NotError(t, err0)
 
 	var (
 		addr    = server.Listener().Addr().String()
@@ -52,53 +50,35 @@ func Test_Server(t *testing.T) {
 
 	// test session start
 	sessionStart.Add(1)
-	client1, err1 := Dial("tcp", addr, proto, LittleEndian)
-	if err1 != nil {
-		t.Fatal("Create client1 failed, Error = %v", err1)
-	}
+	client1, err1 := Dial("tcp", addr, proto)
+	unitest.NotError(t, err1)
 
 	sessionStart.Add(1)
-	client2, err2 := Dial("tcp", addr, proto, LittleEndian)
-	if err2 != nil {
-		t.Fatal("Create client2 failed, Error = %v", err2)
-	}
+	client2, err2 := Dial("tcp", addr, proto)
+	unitest.NotError(t, err2)
 
 	t.Log("check session start")
 	sessionStart.Wait()
-	if sessionStartCount != 2 {
-		t.Fatal("session start count != 2")
-	}
+	unitest.Pass(t, sessionStartCount == 2)
 
 	// test session request
 	sessionRequest.Add(1)
-	if err := client1.Send(message); err != nil {
-		t.Fatal("Send message failed, Error = %v", err)
-	}
+	unitest.NotError(t, client1.Send(message))
 
 	sessionRequest.Add(1)
-	if err := client2.Send(message); err != nil {
-		t.Fatal("Send message failed, Error = %v", err)
-	}
+	unitest.NotError(t, client2.Send(message))
 
 	sessionRequest.Add(1)
-	if err := client1.Send(message); err != nil {
-		t.Fatal("Send message failed, Error = %v", err)
-	}
+	unitest.NotError(t, client1.Send(message))
 
 	sessionRequest.Add(1)
-	if err := client2.Send(message); err != nil {
-		t.Fatal("Send message failed, Error = %v", err)
-	}
+	unitest.NotError(t, client2.Send(message))
 
 	t.Log("check session request")
 	sessionRequest.Wait()
-	if sessionRequestCount != 4 {
-		t.Fatal("session request count != 4")
-	}
 
-	if messageMatchFailed {
-		t.Fatal("Message match failed")
-	}
+	unitest.Pass(t, sessionRequestCount == 4)
+	unitest.Pass(t, messageMatchFailed == false)
 
 	// test session close
 	sessionClose.Add(1)
@@ -109,9 +89,7 @@ func Test_Server(t *testing.T) {
 
 	t.Log("check session close")
 	sessionClose.Wait()
-	if sessionCloseCount != 2 {
-		t.Fatal("session close count != 2")
-	}
+	unitest.Pass(t, sessionCloseCount == 2)
 
 	MakeSureSessionGoroutineExit(t)
 }

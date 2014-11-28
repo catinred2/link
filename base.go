@@ -1,7 +1,9 @@
 package link
 
 import (
+	"encoding/binary"
 	"errors"
+	"io"
 	"net"
 )
 
@@ -14,8 +16,15 @@ var (
 )
 
 var (
-	BigEndian    = BufferFactoryBE{}
-	LittleEndian = BufferFactoryLE{}
+	// Big endian byte order.
+	BigEndianBO = binary.BigEndian
+	// Big endian buffer factory.
+	BigEndianBF = BufferFactoryBE{}
+
+	// Little endian byte order.
+	LittleEndianBO = binary.LittleEndian
+	// Little endian buffer factory.
+	LittleEndianBF = BufferFactoryLE{}
 )
 
 type Settings interface {
@@ -26,6 +35,9 @@ type Settings interface {
 
 // Packet spliting protocol.
 type PacketProtocol interface {
+	// Get buffer factory.
+	BufferFactory() BufferFactory
+
 	// Create a packet writer.
 	NewWriter() PacketWriter
 
@@ -36,17 +48,6 @@ type PacketProtocol interface {
 // Packet writer.
 type PacketWriter interface {
 	Settings
-
-	// Begin a packet writing on the buffer.
-	// If the packet size large than the buffer capacity, a new buffer will be created otherwise the buffer will be reused.
-	// The size no need to equals really packet size, some time we could not knows a message's packet size before it encoded,
-	// if the size less than really packet size, the buffer will auto grows when you append data into it.
-	// This method give the session a way to reuse buffer and avoid invoke Write() twice.
-	BeginPacket(size int, buffer OutBuffer)
-
-	// Finish a packet writing.
-	// Give the protocol writer a chance to set packet head data after packet body writed.
-	EndPacket(buffer OutBuffer)
 
 	// Write a packet to the conn.
 	WritePacket(conn net.Conn, buffer OutBuffer) error
@@ -70,30 +71,110 @@ type BufferFactory interface {
 	NewOutBuffer() OutBuffer
 }
 
-// Big endian message buffer factory.
-type BufferFactoryBE struct {
+// Message buffer base interface.
+type Buffer interface {
+	// Get internal buffer.
+	Get() []byte
+
+	// Get buffer length.
+	Len() int
+
+	// Get buffer capacity.
+	Cap() int
+
+	// Copy buffer data.
+	Copy() []byte
+
+	// Prepare buffer for next read.
+	// DO NOT use this method in application!
+	Prepare(size int)
 }
 
-// Create a big endian incoming message buffer.
-func (_ BufferFactoryBE) NewInBuffer() InBuffer {
-	return new(InBufferBE)
+// Incoming message buffer.
+type InBuffer interface {
+	Buffer
+
+	io.Reader
+
+	// Slice some bytes from buffer.
+	ReadSlice(n int) []byte
+
+	// Copy some bytes from buffer.
+	ReadBytes(n int) []byte
+
+	// Read a string from buffer.
+	ReadString(n int) string
+
+	// Read a rune from buffer.
+	ReadRune() rune
+
+	// Read a byte value from buffer.
+	ReadByte() byte
+
+	// Read a int8 value from buffer.
+	ReadInt8() int8
+
+	// Read a uint8 value from buffer.
+	ReadUint8() uint8
+
+	// Read a int16 value from buffer.
+	ReadInt16() int16
+
+	// Read a uint16 value from buffer.
+	ReadUint16() uint16
+
+	// Read a int32 value from buffer.
+	ReadInt32() int32
+
+	// Read a uint32 value from buffer.
+	ReadUint32() uint32
+
+	// Read a int64 value from buffer.
+	ReadInt64() int64
+
+	// Read a uint64 value from buffer.
+	ReadUint64() uint64
 }
 
-// Create a big endian outgoing message buffer.
-func (_ BufferFactoryBE) NewOutBuffer() OutBuffer {
-	return new(OutBufferBE)
-}
+// Outgoing messsage buffer.
+type OutBuffer interface {
+	Buffer
 
-// Little endian message buffer factory.
-type BufferFactoryLE struct {
-}
+	io.Writer
 
-// Create a little endian incoming message buffer.
-func (_ BufferFactoryLE) NewInBuffer() InBuffer {
-	return new(InBufferLE)
-}
+	// Write a byte slice into buffer.
+	WriteBytes(d []byte)
 
-// Create a little endian outgoing message buffer.
-func (_ BufferFactoryLE) NewOutBuffer() OutBuffer {
-	return new(OutBufferLE)
+	// Write a string into buffer.
+	WriteString(s string)
+
+	// Write a rune into buffer.
+	WriteRune(r rune)
+
+	// Write a byte value into buffer.
+	WriteByte(v byte)
+
+	// Write a int8 value into buffer.
+	WriteInt8(v int8)
+
+	// Write a uint8 value into buffer.
+	WriteUint8(v uint8)
+
+	// Write a int16 value into buffer.
+	WriteInt16(v int16)
+
+	// Write a uint16 value into buffer.
+	WriteUint16(v uint16)
+
+	// Write a int32 value into buffer.
+	WriteInt32(v int32)
+
+	// Write a uint32 value into buffer.
+	WriteUint32(v uint32)
+
+	// Write a int64 value into buffer.
+	WriteInt64(v int64)
+
+	// Write a uint64 value into buffer.
+	WriteUint64(v uint64)
 }

@@ -11,21 +11,16 @@ type Broadcaster struct {
 }
 
 // Craete a broadcaster.
-func NewBroadcaster(protocol PacketProtocol, bufferFactory BufferFactory) *Broadcaster {
+func NewBroadcaster(protocol PacketProtocol) *Broadcaster {
 	return &Broadcaster{
 		writer: protocol.NewWriter(),
-		buffer: bufferFactory.NewOutBuffer(),
+		buffer: protocol.BufferFactory().NewOutBuffer(),
 	}
 }
 
 func (b *Broadcaster) packet(message Message) error {
-	size := message.RecommendPacketSize()
-	b.writer.BeginPacket(size, b.buffer)
-	if err := message.AppendToPacket(b.buffer); err != nil {
-		return err
-	}
-	b.writer.EndPacket(b.buffer)
-	return nil
+	b.buffer.Prepare(message.RecommendBufferSize())
+	return message.WriteBuffer(b.buffer)
 }
 
 // The session collection use to fetch session and send broadcast.
