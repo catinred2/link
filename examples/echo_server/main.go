@@ -25,7 +25,7 @@ func main() {
 
 	link.DefaultConnBufferSize = *buffersize
 
-	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
+	protocol := link.PacketN(2, link.BigEndian)
 
 	server, err := link.Listen("tcp", "127.0.0.1:10010", protocol)
 	if err != nil {
@@ -34,12 +34,12 @@ func main() {
 
 	println("server start:", server.Listener().Addr().String())
 
-	server.AcceptLoop(func(session *link.Session) {
+	server.Handle(func(session *link.Session) {
 		log("client", session.Conn().RemoteAddr().String(), "in")
 
-		session.ReadLoop(func(msg link.InBuffer) {
-			log("client", session.Conn().RemoteAddr().String(), "say:", string(msg.Get()))
-			session.Send(link.Binary(msg.Get()))
+		session.Handle(func(msg *link.InBuffer) {
+			log("client", session.Conn().RemoteAddr().String(), "say:", string(msg.Data))
+			session.Send(link.Binary(msg.Data))
 		})
 
 		log("client", session.Conn().RemoteAddr().String(), "close")

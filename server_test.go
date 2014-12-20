@@ -2,15 +2,15 @@ package link
 
 import (
 	"bytes"
+	"github.com/funny/sync"
 	"github.com/funny/unitest"
 	"runtime/pprof"
-	"sync"
 	"sync/atomic"
 	"testing"
 )
 
 func Test_Server(t *testing.T) {
-	proto := PacketN(4, BigEndianBO, LittleEndianBF)
+	proto := PacketN(4, BigEndian)
 
 	server, err0 := Listen("tcp", "0.0.0.0:0", proto)
 	unitest.NotError(t, err0)
@@ -29,24 +29,22 @@ func Test_Server(t *testing.T) {
 		messageMatchFailed  bool
 	)
 
-	go func() {
-		server.AcceptLoop(func(session *Session) {
-			atomic.AddInt32(&sessionStartCount, 1)
-			sessionStart.Done()
+	go server.Handle(func(session *Session) {
+		atomic.AddInt32(&sessionStartCount, 1)
+		sessionStart.Done()
 
-			session.ReadLoop(func(msg InBuffer) {
-				if !bytes.Equal(msg.Get(), message) {
-					messageMatchFailed = true
-				}
+		session.Handle(func(msg *InBuffer) {
+			if !bytes.Equal(msg.Data, message) {
+				messageMatchFailed = true
+			}
 
-				atomic.AddInt32(&sessionRequestCount, 1)
-				sessionRequest.Done()
-			})
-
-			atomic.AddInt32(&sessionCloseCount, 1)
-			sessionClose.Done()
+			atomic.AddInt32(&sessionRequestCount, 1)
+			sessionRequest.Done()
 		})
-	}()
+
+		atomic.AddInt32(&sessionCloseCount, 1)
+		sessionClose.Done()
+	})
 
 	// test session start
 	sessionStart.Add(1)

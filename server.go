@@ -1,22 +1,39 @@
 package link
 
 import (
+	"errors"
+	"github.com/funny/sync"
 	"net"
-	"sync"
 	"sync/atomic"
 )
 
-// Default send chan buffer size for sessions.
-var DefaultSendChanSize uint = 1024
+// Errors
+var (
+	SendToClosedError   = errors.New("Send to closed session")
+	BlockingError       = errors.New("Blocking happened")
+	PacketTooLargeError = errors.New("Packet too large")
+	NilBufferError      = errors.New("Buffer is nil")
+)
 
-// Default connection buffer size for session.
-var DefaultConnBufferSize int = 1024
+var (
+	DefaultSendChanSize   = 1024 // Default session send chan buffer size.
+	DefaultConnBufferSize = 1024 // Default session read buffer size.
+)
+
+// The easy way to setup a server.
+func Listen(network, address string, protocol Protocol) (*Server, error) {
+	listener, err := net.Listen(network, address)
+	if err != nil {
+		return nil, err
+	}
+	return NewServer(listener, protocol), nil
+}
 
 // Server.
 type Server struct {
 	// About network
 	listener net.Listener
-	protocol PacketProtocol
+	protocol Protocol
 
 	// About sessions
 	maxSessionId uint64
@@ -25,24 +42,22 @@ type Server struct {
 
 	// About server start and stop
 	stopFlag   int32
-	stopWait   *sync.WaitGroup
+	stopWait   sync.WaitGroup
 	stopReason interface{}
 
-	SendChanSize   uint        // Session send chan buffer size.
-	ConnBufferSize int         // Session connection buffer size.
+	SendChanSize   int         // Session send chan buffer size.
+	ReadBufferSize int         // Session read buffer size.
 	State          interface{} // server state.
 }
 
 // Create a server.
-func NewServer(listener net.Listener, protocol PacketProtocol) *Server {
+func NewServer(listener net.Listener, protocol Protocol) *Server {
 	return &Server{
 		listener:       listener,
 		protocol:       protocol,
-		maxSessionId:   0,
 		sessions:       make(map[uint64]*Session),
-		stopWait:       new(sync.WaitGroup),
 		SendChanSize:   DefaultSendChanSize,
-		ConnBufferSize: DefaultConnBufferSize,
+		ReadBufferSize: DefaultConnBufferSize,
 	}
 }
 
@@ -52,7 +67,7 @@ func (server *Server) Listener() net.Listener {
 }
 
 // Get packet protocol.
-func (server *Server) Protocol() PacketProtocol {
+func (server *Server) Protocol() Protocol {
 	return server.protocol
 }
 
@@ -67,7 +82,7 @@ func (server *Server) StopReason() interface{} {
 }
 
 // Loop and accept incoming connections. The callback will called asynchronously when each session start.
-func (server *Server) AcceptLoop(handler func(*Session)) {
+func (server *Server) Handle(handler func(*Session)) {
 	for {
 		session, err := server.Accept()
 		if err != nil {
@@ -110,7 +125,7 @@ func (server *Server) Stop(reason interface{}) {
 }
 
 func (server *Server) newSession(id uint64, conn net.Conn) *Session {
-	session := NewSession(id, conn, server.protocol, server.SendChanSize, server.ConnBufferSize)
+	session := NewSession(id, conn, server.protocol, server.SendChanSize, server.ReadBufferSize)
 	server.putSession(session)
 	return session
 }
