@@ -5,33 +5,32 @@ import "github.com/funny/sync"
 // The session collection use to fetch session and send broadcast.
 type SessionCollection interface {
 	Protocol() Protocol
-	Fetch(func(*Session))
+	FetchSession(func(*Session))
+}
+
+type BroadcastWork struct {
+	Session *Session
+	AsyncWork
 }
 
 // Broadcast to sessions. The message only encoded once
-// so the performance better then send message one by one.
-func Broadcast(sessions SessionCollection, message Message) error {
-	var buffer = &OutBuffer{}
-	if err := sessions.Protocol().Packet(message, buffer); err != nil {
-		return err
+// so the performance is better than send message one by one.
+func Broadcast(sessions SessionCollection, message Message) ([]BroadcastWork, error) {
+	buffer := NewOutBuffer()
+	packet, err := sessions.Protocol().Packet(message, buffer)
+	if err != nil {
+		return nil, err
 	}
-	sessions.Fetch(func(session *Session) {
-		session.TrySendPacket(buffer, 0)
+	works := make([]BroadcastWork, 0, 10)
+	buffer.isBroadcast = true
+	sessions.FetchSession(func(session *Session) {
+		buffer.broadcastUse()
+		works = append(works, BroadcastWork{
+			session,
+			session.AsyncSendPacket(packet),
+		})
 	})
-	return nil
-}
-
-// Broadcast to sessions. The message only encoded once
-// so the performance better then send message one by one.
-func MustBroadcast(sessions SessionCollection, message Message) error {
-	var buffer = &OutBuffer{}
-	if err := sessions.Protocol().Packet(message, buffer); err != nil {
-		return err
-	}
-	sessions.Fetch(func(session *Session) {
-		session.SendPacket(buffer)
-	})
-	return nil
+	return works, nil
 }
 
 // The channel type. Used to maintain a group of session.
@@ -99,17 +98,19 @@ func (channel *Channel) Kick(sessionId uint64) {
 	}
 }
 
+// Get channel protocol.
+// Implement SessionCollection interface.
+func (channel *Channel) Protocol() Protocol {
+	return channel.protocol
+}
+
 // Fetch the sessions. NOTE: Invoke Kick() or Exit() in fetch callback will dead lock.
-func (channel *Channel) Fetch(callback func(*Session)) {
+// Implement SessionCollection interface.
+func (channel *Channel) FetchSession(callback func(*Session)) {
 	channel.mutex.RLock()
 	defer channel.mutex.RUnlock()
 
 	for _, sesssion := range channel.sessions {
 		callback(sesssion.Session)
 	}
-}
-
-// Get channel protocol.
-func (channel *Channel) Protocol() Protocol {
-	return channel.protocol
 }

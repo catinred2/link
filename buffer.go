@@ -1,16 +1,183 @@
 package link
 
 import (
-	"io"
 	"encoding/binary"
+	"github.com/funny/sync"
+	"io"
 	"math"
+	"sync/atomic"
 	"unicode/utf8"
 )
 
-// Incoming message buffer.
+var globalPool = newBufferPool()
+
+// Get/Set initialization capacity for new buffer.
+func PoolNewDataSize(size int) int {
+	if size == 0 {
+		return globalPool.bufferInitSize
+	}
+	old := globalPool.bufferInitSize
+	globalPool.bufferInitSize = size
+	return old
+}
+
+// Limit max buffer size in object pool.
+// Large buffer will not return to object pool when it freed.
+func PoolMaxDataSize(size int) int {
+	if size == 0 {
+		return globalPool.bufferMaxSize
+	}
+	old := globalPool.bufferMaxSize
+	globalPool.bufferMaxSize = size
+	return old
+}
+
+// Buffer pool state.
+type PoolState struct {
+	InHitRate   float64 // Hit rate of InBuffer.
+	OutHitRate  float64 // Hit rate of OutBuffer.
+	DataHitRate float64 // Hit rate of buffer data.
+	FreeRate    float64 // Buffer free rate.
+	DropRate    float64 // Drop rate of large buffer.
+}
+
+// Get buffer pool hit rate
+func GetPoolState() PoolState {
+	getIn := float64(atomic.LoadUint64(&globalPool.getIn))
+	newIn := float64(atomic.LoadUint64(&globalPool.newIn))
+
+	getOut := float64(atomic.LoadUint64(&globalPool.getOut))
+	newOut := float64(atomic.LoadUint64(&globalPool.newOut))
+
+	getData := float64(atomic.LoadUint64(&globalPool.getData))
+	newData := float64(atomic.LoadUint64(&globalPool.newData))
+
+	freeCount := float64(atomic.LoadUint64(&globalPool.freeCount))
+	dropCount := float64(atomic.LoadUint64(&globalPool.dropCount))
+
+	return PoolState{
+		InHitRate:   (getIn - newIn) / getIn,
+		OutHitRate:  (getOut - newOut) / getOut,
+		DataHitRate: (getData - newData) / getData,
+		FreeRate:    freeCount / (getIn + getOut),
+		DropRate:    dropCount / (getIn + getOut),
+	}
+}
+
+type bufferPool struct {
+	// InBuffer
+	in    sync.Pool
+	getIn uint64
+	newIn uint64
+
+	// OutBuffer
+	out    sync.Pool
+	getOut uint64
+	newOut uint64
+
+	// []byte
+	data    sync.Pool
+	getData uint64
+	newData uint64
+
+	freeCount uint64
+	dropCount uint64
+
+	bufferInitSize int
+	bufferMaxSize  int
+}
+
+func newBufferPool() *bufferPool {
+	pool := new(bufferPool)
+
+	pool.in.New = func() interface{} {
+		atomic.AddUint64(&pool.newIn, 1)
+		return new(InBuffer)
+	}
+
+	pool.out.New = func() interface{} {
+		atomic.AddUint64(&pool.newOut, 1)
+		return new(OutBuffer)
+	}
+
+	pool.data.New = func() interface{} {
+		atomic.AddUint64(&pool.newData, 1)
+		return make([]byte, 0, pool.bufferInitSize)
+	}
+
+	pool.bufferInitSize = 4096
+	pool.bufferMaxSize = 102400
+
+	return pool
+}
+
+func (pool *bufferPool) GetInBuffer() *InBuffer {
+	atomic.AddUint64(&pool.getIn, 1)
+	atomic.AddUint64(&pool.getData, 1)
+
+	in := pool.in.Get().(*InBuffer)
+	in.Data = pool.data.Get().([]byte)
+	in.isFreed = false
+	return in
+}
+
+func (pool *bufferPool) GetOutBuffer() *OutBuffer {
+	atomic.AddUint64(&pool.getOut, 1)
+	atomic.AddUint64(&pool.getData, 1)
+
+	out := pool.out.Get().(*OutBuffer)
+	out.Data = pool.data.Get().([]byte)
+	out.isFreed = false
+	out.isBroadcast = false
+	out.refCount = 0
+	return out
+}
+
+func (pool *bufferPool) PutInBuffer(in *InBuffer) {
+	atomic.AddUint64(&pool.freeCount, 1)
+	if cap(in.Data) > pool.bufferMaxSize {
+		atomic.AddUint64(&pool.dropCount, 1)
+		return
+	}
+
+	pool.data.Put(in.Data[0:0])
+	in.Data = nil
+	in.ReadPos = 0
+	in.isFreed = true
+	pool.in.Put(in)
+}
+
+func (pool *bufferPool) PutOutBuffer(out *OutBuffer) {
+	atomic.AddUint64(&pool.freeCount, 1)
+	if cap(out.Data) > pool.bufferMaxSize {
+		atomic.AddUint64(&pool.dropCount, 1)
+		return
+	}
+
+	pool.data.Put(out.Data[0:0])
+	out.Data = nil
+	out.isFreed = true
+	pool.out.Put(out)
+}
+
+// Incomming message buffer.
 type InBuffer struct {
-	Data []byte
-	ReadPos int
+	Data    []byte // Buffer data.
+	ReadPos int    // Read position.
+	isFreed bool
+}
+
+// Create a new incomming message buffer.
+func NewInBuffer() *InBuffer {
+	return globalPool.GetInBuffer()
+}
+
+// Return the buffer to buffer pool.
+func (in *InBuffer) Free() {
+	if in.isFreed {
+		panic("link.InBuffer: double free")
+	}
+	globalPool.PutInBuffer(in)
 }
 
 // Prepare buffer for next message.
@@ -26,7 +193,7 @@ func (in *InBuffer) Prepare(size int) {
 
 // Slice some bytes from buffer.
 func (in *InBuffer) Slice(n int) []byte {
-	r := in.Data[in.ReadPos:in.ReadPos+n]
+	r := in.Data[in.ReadPos : in.ReadPos+n]
 	in.ReadPos += n
 	return r
 }
@@ -37,7 +204,7 @@ func (in *InBuffer) Read(b []byte) (int, error) {
 		return 0, io.EOF
 	}
 	n := len(b)
-	if n + in.ReadPos > len(in.Data) {
+	if n+in.ReadPos > len(in.Data) {
 		n = len(in.Data) - in.ReadPos
 	}
 	copy(b, in.Data[in.ReadPos:])
@@ -121,7 +288,33 @@ func (in *InBuffer) ReadFloat64BE() float64 {
 
 // Outgoing message buffer.
 type OutBuffer struct {
-	Data []byte
+	Data        []byte // Buffer data.
+	isFreed     bool
+	isBroadcast bool
+	refCount    int32
+}
+
+// Create a new outgoing message buffer.
+func NewOutBuffer() *OutBuffer {
+	return globalPool.GetOutBuffer()
+}
+
+func (out *OutBuffer) broadcastUse() {
+	atomic.AddInt32(&out.refCount, 1)
+}
+
+func (out *OutBuffer) broadcastFree() {
+	if out.isBroadcast && atomic.AddInt32(&out.refCount, -1) == 0 {
+		out.Free()
+	}
+}
+
+// Return the buffer to buffer pool.
+func (out *OutBuffer) Free() {
+	if out.isFreed {
+		panic("link.OutBuffer: double free")
+	}
+	globalPool.PutOutBuffer(out)
 }
 
 // Prepare for next message.

@@ -9,10 +9,9 @@ import (
 
 // Errors
 var (
-	SendToClosedError   = errors.New("Send to closed session")
-	BlockingError       = errors.New("Blocking happened")
-	PacketTooLargeError = errors.New("Packet too large")
-	NilBufferError      = errors.New("Buffer is nil")
+	SendToClosedError     = errors.New("Send to closed session")
+	PacketTooLargeError   = errors.New("Packet too large")
+	AsyncSendTimeoutError = errors.New("Async send timeout")
 )
 
 var (
@@ -64,11 +63,6 @@ func NewServer(listener net.Listener, protocol Protocol) *Server {
 // Get listener address.
 func (server *Server) Listener() net.Listener {
 	return server.listener
-}
-
-// Get packet protocol.
-func (server *Server) Protocol() Protocol {
-	return server.protocol
 }
 
 // Check server is stoppped
@@ -167,5 +161,20 @@ func (server *Server) closeSessions() {
 	sessions := server.copySessions()
 	for _, session := range sessions {
 		session.Close(nil)
+	}
+}
+
+// Get packet protocol.
+// Implement SessionCollection interface.
+func (server *Server) Protocol() Protocol {
+	return server.protocol
+}
+
+// Fetch sessions.
+// Implement SessionCollection interface.
+func (server *Server) FetchSession(callback func(*Session)) {
+	sessions := server.copySessions()
+	for _, session := range sessions {
+		callback(session)
 	}
 }
