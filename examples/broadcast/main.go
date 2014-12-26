@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/funny/link"
+	"github.com/catinred2/link"
 	"time"
 )
 

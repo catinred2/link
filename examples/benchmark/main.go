@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/funny/link"
-	"github.com/funny/sync"
+	"github.com/catinred2/link"
+	"github.com/catinred2/sync"
 	"net"
 	"time"
 )

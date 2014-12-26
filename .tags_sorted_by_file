@@ -1,0 +1,189 @@
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_PROGRAM_VERSION	5.8	//
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+Buffer	base.go	/^type Buffer interface {$/;"	d
+BufferFactory	base.go	/^type BufferFactory interface {$/;"	d
+InBuffer	base.go	/^type InBuffer interface {$/;"	d
+OutBuffer	base.go	/^type OutBuffer interface {$/;"	d
+PacketProtocol	base.go	/^type PacketProtocol interface {$/;"	d
+PacketReader	base.go	/^type PacketReader interface {$/;"	d
+PacketWriter	base.go	/^type PacketWriter interface {$/;"	d
+Settings	base.go	/^type Settings interface {$/;"	d
+Broadcast	broadcast.go	/^func (b *Broadcaster) Broadcast(sessions SessionCollection, message Message) error {$/;"	d
+Broadcaster	broadcast.go	/^type Broadcaster struct {$/;"	d
+MustBroadcast	broadcast.go	/^func (b *Broadcaster) MustBroadcast(sessions SessionCollection, message Message) error {$/;"	d
+NewBroadcaster	broadcast.go	/^func NewBroadcaster(protocol PacketProtocol) *Broadcaster {$/;"	d
+SessionCollection	broadcast.go	/^type SessionCollection interface {$/;"	d
+packet	broadcast.go	/^func (b *Broadcaster) packet(message Message) error {$/;"	d
+BufferBase	buffer.go	/^type BufferBase struct {$/;"	d
+BufferFactoryBE	buffer.go	/^type BufferFactoryBE struct {$/;"	d
+BufferFactoryLE	buffer.go	/^type BufferFactoryLE struct {$/;"	d
+Cap	buffer.go	/^func (m *BufferBase) Cap() int {$/;"	d
+Copy	buffer.go	/^func (m *BufferBase) Copy() []byte {$/;"	d
+Get	buffer.go	/^func (m *BufferBase) Get() []byte {$/;"	d
+InBufferBE	buffer.go	/^type InBufferBE struct {$/;"	d
+InBufferBase	buffer.go	/^type InBufferBase struct {$/;"	d
+InBufferLE	buffer.go	/^type InBufferLE struct {$/;"	d
+Len	buffer.go	/^func (m *BufferBase) Len() int {$/;"	d
+NewInBuffer	buffer.go	/^func (_ BufferFactoryBE) NewInBuffer() InBuffer {$/;"	d
+NewInBuffer	buffer.go	/^func (_ BufferFactoryLE) NewInBuffer() InBuffer {$/;"	d
+NewOutBuffer	buffer.go	/^func (_ BufferFactoryBE) NewOutBuffer() OutBuffer {$/;"	d
+NewOutBuffer	buffer.go	/^func (_ BufferFactoryLE) NewOutBuffer() OutBuffer {$/;"	d
+OutBufferBE	buffer.go	/^type OutBufferBE struct {$/;"	d
+OutBufferBase	buffer.go	/^type OutBufferBase struct {$/;"	d
+OutBufferLE	buffer.go	/^type OutBufferLE struct {$/;"	d
+Prepare	buffer.go	/^func (m *InBufferBase) Prepare(size int) {$/;"	d
+Prepare	buffer.go	/^func (m *OutBufferBase) Prepare(size int) {$/;"	d
+Read	buffer.go	/^func (m *InBufferBase) Read(p []byte) (int, error) {$/;"	d
+ReadByte	buffer.go	/^func (m *InBufferBase) ReadByte() byte {$/;"	d
+ReadBytes	buffer.go	/^func (m *InBufferBase) ReadBytes(n int) []byte {$/;"	d
+ReadInt16	buffer.go	/^func (m *InBufferBE) ReadInt16() int16 {$/;"	d
+ReadInt16	buffer.go	/^func (m *InBufferLE) ReadInt16() int16 {$/;"	d
+ReadInt32	buffer.go	/^func (m *InBufferBE) ReadInt32() int32 {$/;"	d
+ReadInt32	buffer.go	/^func (m *InBufferLE) ReadInt32() int32 {$/;"	d
+ReadInt64	buffer.go	/^func (m *InBufferBE) ReadInt64() int64 {$/;"	d
+ReadInt64	buffer.go	/^func (m *InBufferLE) ReadInt64() int64 {$/;"	d
+ReadInt8	buffer.go	/^func (m *InBufferBase) ReadInt8() int8 {$/;"	d
+ReadRune	buffer.go	/^func (m *InBufferBase) ReadRune() rune {$/;"	d
+ReadSlice	buffer.go	/^func (m *InBufferBase) ReadSlice(n int) []byte {$/;"	d
+ReadString	buffer.go	/^func (m *InBufferBase) ReadString(n int) string {$/;"	d
+ReadUint16	buffer.go	/^func (m *InBufferBE) ReadUint16() uint16 {$/;"	d
+ReadUint16	buffer.go	/^func (m *InBufferLE) ReadUint16() uint16 {$/;"	d
+ReadUint32	buffer.go	/^func (m *InBufferBE) ReadUint32() uint32 {$/;"	d
+ReadUint32	buffer.go	/^func (m *InBufferLE) ReadUint32() uint32 {$/;"	d
+ReadUint64	buffer.go	/^func (m *InBufferBE) ReadUint64() uint64 {$/;"	d
+ReadUint64	buffer.go	/^func (m *InBufferLE) ReadUint64() uint64 {$/;"	d
+ReadUint8	buffer.go	/^func (m *InBufferBase) ReadUint8() uint8 {$/;"	d
+Write	buffer.go	/^func (m *OutBufferBase) Write(d []byte) (int, error) {$/;"	d
+WriteByte	buffer.go	/^func (m *OutBufferBE) WriteByte(v byte) {$/;"	d
+WriteByte	buffer.go	/^func (m *OutBufferBase) WriteByte(v byte) {$/;"	d
+WriteBytes	buffer.go	/^func (m *OutBufferBE) WriteBytes(d []byte) {$/;"	d
+WriteBytes	buffer.go	/^func (m *OutBufferBase) WriteBytes(d []byte) {$/;"	d
+WriteInt16	buffer.go	/^func (m *OutBufferBE) WriteInt16(v int16) {$/;"	d
+WriteInt16	buffer.go	/^func (m *OutBufferLE) WriteInt16(v int16) {$/;"	d
+WriteInt32	buffer.go	/^func (m *OutBufferBE) WriteInt32(v int32) {$/;"	d
+WriteInt32	buffer.go	/^func (m *OutBufferLE) WriteInt32(v int32) {$/;"	d
+WriteInt64	buffer.go	/^func (m *OutBufferBE) WriteInt64(v int64) {$/;"	d
+WriteInt64	buffer.go	/^func (m *OutBufferLE) WriteInt64(v int64) {$/;"	d
+WriteInt8	buffer.go	/^func (m *OutBufferBase) WriteInt8(v int8) {$/;"	d
+WriteRune	buffer.go	/^func (m *OutBufferBE) WriteRune(r rune) {$/;"	d
+WriteRune	buffer.go	/^func (m *OutBufferBase) WriteRune(r rune) {$/;"	d
+WriteString	buffer.go	/^func (m *OutBufferBE) WriteString(s string) {$/;"	d
+WriteString	buffer.go	/^func (m *OutBufferBase) WriteString(s string) {$/;"	d
+WriteUint16	buffer.go	/^func (m *OutBufferBE) WriteUint16(v uint16) {$/;"	d
+WriteUint16	buffer.go	/^func (m *OutBufferLE) WriteUint16(v uint16) {$/;"	d
+WriteUint32	buffer.go	/^func (m *OutBufferBE) WriteUint32(v uint32) {$/;"	d
+WriteUint32	buffer.go	/^func (m *OutBufferLE) WriteUint32(v uint32) {$/;"	d
+WriteUint64	buffer.go	/^func (m *OutBufferBE) WriteUint64(v uint64) {$/;"	d
+WriteUint64	buffer.go	/^func (m *OutBufferLE) WriteUint64(v uint64) {$/;"	d
+WriteUint8	buffer.go	/^func (m *OutBufferBase) WriteUint8(v uint8) {$/;"	d
+of	buffer.go	/^\/\/ The base type of incoming message buffer.$/;"	d
+of	buffer.go	/^\/\/ The base type of outgoing message buffer.$/;"	d
+PrepareBuffer	buffer_test.go	/^func PrepareBuffer(buffer OutBuffer) {$/;"	d
+Test_BigEndianBuffer	buffer_test.go	/^func Test_BigEndianBuffer(t *testing.T) {$/;"	d
+Test_LittleEndianBuffer	buffer_test.go	/^func Test_LittleEndianBuffer(t *testing.T) {$/;"	d
+VerifyBuffer	buffer_test.go	/^func VerifyBuffer(t *testing.T, buffer InBuffer) {$/;"	d
+Broadcast	channel.go	/^func (channel *Channel) Broadcast(message Message) error {$/;"	d
+Channel	channel.go	/^type Channel struct {$/;"	d
+Exit	channel.go	/^func (channel *Channel) Exit(session *Session) {$/;"	d
+Fetch	channel.go	/^func (channel *Channel) Fetch(callback func(*Session)) {$/;"	d
+Join	channel.go	/^func (channel *Channel) Join(session *Session, kickCallback func()) {$/;"	d
+Kick	channel.go	/^func (channel *Channel) Kick(sessionId uint64) {$/;"	d
+Len	channel.go	/^func (channel *Channel) Len() int {$/;"	d
+MustBroadcast	channel.go	/^func (channel *Channel) MustBroadcast(message Message) error {$/;"	d
+NewChannel	channel.go	/^func NewChannel(protocol PacketProtocol) *Channel {$/;"	d
+OnSessionClose	channel.go	/^func (channel *Channel) OnSessionClose(session *Session) {$/;"	d
+channelSession	channel.go	/^type channelSession struct {$/;"	d
+ClientResult	examples/benchmark/main.go	/^type ClientResult struct {$/;"	d
+CountConn	examples/benchmark/main.go	/^type CountConn struct {$/;"	d
+Read	examples/benchmark/main.go	/^func (conn *CountConn) Read(p []byte) (int, error) {$/;"	d
+Write	examples/benchmark/main.go	/^func (conn *CountConn) Write(p []byte) (int, error) {$/;"	d
+client	examples/benchmark/main.go	/^func client(initWait *sync.WaitGroup, startChan chan int, resultChan chan ClientResult, timeout time.Time, msg link.Binary) {$/;"	d
+main	examples/benchmark/main.go	/^func main() {$/;"	d
+main	examples/broadcast/main.go	/^func main() {$/;"	d
+input	examples/echo_client/main.go	/^		var input string$/;"	d
+main	examples/echo_client/main.go	/^func main() {$/;"	d
+log	examples/echo_server/main.go	/^func log(v ...interface{}) {$/;"	d
+main	examples/echo_server/main.go	/^func main() {$/;"	d
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+Binary	message.go	/^type Binary []byte$/;"	d
+JSON	message.go	/^type JSON struct {$/;"	d
+Message	message.go	/^type Message interface {$/;"	d
+Push	message.go	/^func (q *SendQueue) Push(message Message) {$/;"	d
+RecommendBufferSize	message.go	/^func (bin Binary) RecommendBufferSize() int {$/;"	d
+RecommendBufferSize	message.go	/^func (j JSON) RecommendBufferSize() int {$/;"	d
+RecommendBufferSize	message.go	/^func (q *SendQueue) RecommendBufferSize() int {$/;"	d
+SendQueue	message.go	/^type SendQueue struct {$/;"	d
+WriteBuffer	message.go	/^func (bin Binary) WriteBuffer(buffer OutBuffer) error {$/;"	d
+WriteBuffer	message.go	/^func (j JSON) WriteBuffer(buffer OutBuffer) error {$/;"	d
+WriteBuffer	message.go	/^func (q *SendQueue) WriteBuffer(buffer OutBuffer) error {$/;"	d
+implemented	message.go	/^\/\/ The send queue type implemented Message interface. So you can pass it as the Session.Send() method argument.$/;"	d
+BufferFactory	packetn.go	/^func (p PNProtocol) BufferFactory() BufferFactory {$/;"	d
+NewPNReader	packetn.go	/^func NewPNReader(n int, bo binary.ByteOrder, pid uint32) *PNReader {$/;"	d
+NewPNWriter	packetn.go	/^func NewPNWriter(n int, bo binary.ByteOrder, pid uint32) *PNWriter {$/;"	d
+NewReader	packetn.go	/^func (p PNProtocol) NewReader() PacketReader {$/;"	d
+NewWriter	packetn.go	/^func (p PNProtocol) NewWriter() PacketWriter {$/;"	d
+PNProtocol	packetn.go	/^type PNProtocol struct {$/;"	d
+PNReader	packetn.go	/^type PNReader struct {$/;"	d
+PNWriter	packetn.go	/^type PNWriter struct {$/;"	d
+PacketN	packetn.go	/^func PacketN(n int, bo binary.ByteOrder, bf BufferFactory, protocolid uint32) *PNProtocol {$/;"	d
+ReadPacket	packetn.go	/^func (r *PNReader) ReadPacket(conn net.Conn, buffer InBuffer) error {$/;"	d
+WritePacket	packetn.go	/^func (w *PNWriter) WritePacket(conn net.Conn, buffer OutBuffer) error {$/;"	d
+pidInHeader	packetn.go	/^	var pidInHeader uint32$/;"	d
+Accept	server.go	/^func (server *Server) Accept() (*Session, error) {$/;"	d
+AcceptLoop	server.go	/^func (server *Server) AcceptLoop(handler func(*Session)) {$/;"	d
+DefaultConnBufferSize	server.go	/^var DefaultConnBufferSize int = 1024$/;"	d
+DefaultSendChanSize	server.go	/^var DefaultSendChanSize uint = 1024$/;"	d
+IsStopped	server.go	/^func (server *Server) IsStopped() bool {$/;"	d
+Listener	server.go	/^func (server *Server) Listener() net.Listener {$/;"	d
+NewServer	server.go	/^func NewServer(listener net.Listener, protocol PacketProtocol) *Server {$/;"	d
+OnSessionClose	server.go	/^func (server *Server) OnSessionClose(session *Session) {$/;"	d
+Protocol	server.go	/^func (server *Server) Protocol() PacketProtocol {$/;"	d
+Server	server.go	/^type Server struct {$/;"	d
+Stop	server.go	/^func (server *Server) Stop(reason interface{}) {$/;"	d
+StopReason	server.go	/^func (server *Server) StopReason() interface{} {$/;"	d
+closeSessions	server.go	/^func (server *Server) closeSessions() {$/;"	d
+copySessions	server.go	/^func (server *Server) copySessions() []*Session {$/;"	d
+delSession	server.go	/^func (server *Server) delSession(session *Session) {$/;"	d
+newSession	server.go	/^func (server *Server) newSession(id uint64, conn net.Conn) *Session {$/;"	d
+putSession	server.go	/^func (server *Server) putSession(session *Session) {$/;"	d
+MakeSureSessionGoroutineExit	server_test.go	/^func MakeSureSessionGoroutineExit(t *testing.T) {$/;"	d
+Test_Server	server_test.go	/^func Test_Server(t *testing.T) {$/;"	d
+AddCloseEventListener	session.go	/^func (session *Session) AddCloseEventListener(listener SessionCloseEventListener) {$/;"	d
+Close	session.go	/^func (session *Session) Close(reason interface{}) {$/;"	d
+CloseReason	session.go	/^func (session *Session) CloseReason() interface{} {$/;"	d
+Conn	session.go	/^func (session *Session) Conn() net.Conn {$/;"	d
+Id	session.go	/^func (session *Session) Id() uint64 {$/;"	d
+IsClosed	session.go	/^func (session *Session) IsClosed() bool {$/;"	d
+NewSession	session.go	/^func NewSession(id uint64, conn net.Conn, protocol PacketProtocol, sendChanSize uint, connBufferSize int) *Session {$/;"	d
+Packet	session.go	/^func (session *Session) Packet(message Message, buffer OutBuffer) error {$/;"	d
+Protocol	session.go	/^func (session *Session) Protocol() PacketProtocol {$/;"	d
+Read	session.go	/^func (session *Session) Read() (InBuffer, error) {$/;"	d
+ReadLoop	session.go	/^func (session *Session) ReadLoop(handler func(InBuffer)) {$/;"	d
+ReadReuseBuffer	session.go	/^func (session *Session) ReadReuseBuffer(buffer InBuffer) error {$/;"	d
+ReaderSettings	session.go	/^func (session *Session) ReaderSettings() Settings {$/;"	d
+RemoveCloseEventListener	session.go	/^func (session *Session) RemoveCloseEventListener(listener SessionCloseEventListener) {$/;"	d
+Send	session.go	/^func (session *Session) Send(message Message) error {$/;"	d
+SendPacket	session.go	/^func (session *Session) SendPacket(packet OutBuffer) error {$/;"	d
+SendReuseBuffer	session.go	/^func (session *Session) SendReuseBuffer(message Message, buffer OutBuffer) error {$/;"	d
+Session	session.go	/^type Session struct {$/;"	d
+SessionCloseEventListener	session.go	/^type SessionCloseEventListener interface {$/;"	d
+TrySend	session.go	/^func (session *Session) TrySend(message Message, timeout time.Duration) error {$/;"	d
+TrySendPacket	session.go	/^func (session *Session) TrySendPacket(packet OutBuffer, timeout time.Duration) error {$/;"	d
+WriterSettings	session.go	/^func (session *Session) WriterSettings() Settings {$/;"	d
+buffer	session.go	/^	var buffer = session.bufferFactory.NewInBuffer()$/;"	d
+buffer	session.go	/^	var buffer = session.bufferFactory.NewOutBuffer()$/;"	d
+dispatchCloseEvent	session.go	/^func (session *Session) dispatchCloseEvent() {$/;"	d
+sendLoop	session.go	/^func (session *Session) sendLoop() {$/;"	d
+BufferConn	util.go	/^type BufferConn struct {$/;"	d
+Dial	util.go	/^func Dial(network, address string, protocol PacketProtocol) (*Session, error) {$/;"	d
+DialTimeout	util.go	/^func DialTimeout(network, address string, timeout time.Duration, protocol PacketProtocol) (*Session, error) {$/;"	d
+Listen	util.go	/^func Listen(network, address string, protocol PacketProtocol) (*Server, error) {$/;"	d
+MaxPacketSize	util.go	/^func (s *SimpleSettings) MaxPacketSize(maxsize int) (old int) {$/;"	d
+NewBufferConn	util.go	/^func NewBufferConn(conn net.Conn, size int) *BufferConn {$/;"	d
+Read	util.go	/^func (conn *BufferConn) Read(d []byte) (int, error) {$/;"	d
+SimpleSettings	util.go	/^type SimpleSettings struct {$/;"	d
+dialSessionId	util.go	/^var dialSessionId uint64$/;"	d
+implement	util.go	/^\/\/ This type implement the Settings interface.$/;"	d

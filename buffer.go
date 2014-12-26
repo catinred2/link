@@ -2,7 +2,7 @@ package link
 
 import (
 	"encoding/binary"
-	"github.com/funny/sync"
+	"github.com/catinred2/sync"
 	"io"
 	"math"
 	"sync/atomic"
